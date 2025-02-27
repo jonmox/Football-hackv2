@@ -17,7 +17,7 @@ logging.basicConfig(
 
 # Initialize Database
 storage = Mukund("Vegeta")
-db = storage.database("players")
+db = storage.database("celebs")
 
 # In-memory cache for quick lookups (to handle 1,200 players efficiently)
 player_cache = {}
