@@ -1,4 +1,4 @@
-bsimport os
+import os
 import logging
 import asyncio
 import random
