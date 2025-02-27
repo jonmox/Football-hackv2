@@ -53,9 +53,9 @@ async def run_flask():
     await serve(web_app, config)
 
 # Ensure required environment variables exist
-API_ID = os.getenv("API_ID")
-API_HASH = os.getenv("API_HASH")
-SESSION_STRING = os.getenv("SESSION")
+API_ID = 29187149  # Replace with your actual API ID
+API_HASH = "b1c8abd0447cdccc7ade9d68cfc0d2e2"  # Replace with your actual API hash
+SESSION_STRING = "BQG9XE0AMprKHi8H5i3KPxjb7OQeq_JzBMaDCaD-HTJKkupGQf4FtLDpiLQIsv6-wDIC-tEZOZLKwyF2dY33GQDSlpgC26iatBqlXVdAt28SCBhJf6MLd1x0dL4cwd1_smK3pSTLu6UgrNUEQr1yBiW_7J2KH3prV-Ek0vUwcgKmt7C58kLPPXrQfkU9xPsgxHckOE9r-cDIqivQMNd2qeZkbapAAkVTJZ_YRXr5yG3SgrxTs4eyyqhZCqFY0mj26ejVLYcx4j8_bgZu4j8IKautKzLaiVnB57gzUeZHUSEGcZtdlPa80CV2PokeEEx16pVhO9nqHIsi4XKTyF9FB9dEUmwLLAAAAAG7NKR3AA"
 
 assert API_ID is not None, "Missing API_ID in environment variables!"
 assert API_HASH is not None, "Missing API_HASH in environment variables!"
