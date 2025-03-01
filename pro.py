@@ -7,7 +7,6 @@ from pyrogram.errors import FloodWait
 from pyrogram.types import Message
 from Mukund import Mukund
 from flask import Flask
-from collections import defaultdict
 
 # Configure Logging
 logging.basicConfig(
@@ -19,7 +18,7 @@ logging.basicConfig(
 storage = Mukund("Vegeta")
 db = storage.database("celebs")
 
-# In-memory cache for quick lookups (to handle 1,200 players efficiently)
+# In-memory cache for quick lookups
 player_cache = {}
 
 # Preload players from the database at startup
@@ -27,9 +26,9 @@ def preload_players():
     global player_cache
     logging.info("Preloading player database into cache...")
     try:
-        all_players = db.all()  # This returns a dictionary, not a list
-        if isinstance(all_players, dict):  # Ensure it's a dictionary
-            player_cache = all_players  # Directly assign to cache
+        all_players = db.all()
+        if isinstance(all_players, dict):
+            player_cache = all_players
             logging.info(f"Loaded {len(player_cache)} players into cache.")
         else:
             logging.error("Database returned unexpected data format!")
@@ -52,14 +51,10 @@ async def run_flask():
     config.bind = ["0.0.0.0:8000"]
     await serve(web_app, config)
 
-# Ensure required environment variables exist
-API_ID = 29187149  # Replace with your actual API ID
-API_HASH = "b1c8abd0447cdccc7ade9d68cfc0d2e2"  # Replace with your actual API hash
-SESSION_STRING = "BQG9XE0AMprKHi8H5i3KPxjb7OQeq_JzBMaDCaD-HTJKkupGQf4FtLDpiLQIsv6-wDIC-tEZOZLKwyF2dY33GQDSlpgC26iatBqlXVdAt28SCBhJf6MLd1x0dL4cwd1_smK3pSTLu6UgrNUEQr1yBiW_7J2KH3prV-Ek0vUwcgKmt7C58kLPPXrQfkU9xPsgxHckOE9r-cDIqivQMNd2qeZkbapAAkVTJZ_YRXr5yG3SgrxTs4eyyqhZCqFY0mj26ejVLYcx4j8_bgZu4j8IKautKzLaiVnB57gzUeZHUSEGcZtdlPa80CV2PokeEEx16pVhO9nqHIsi4XKTyF9FB9dEUmwLLAAAAAG7NKR3AA"
-
-assert API_ID is not None, "Missing API_ID in environment variables!"
-assert API_HASH is not None, "Missing API_HASH in environment variables!"
-assert SESSION_STRING is not None, "Missing SESSION in environment variables!"
+# Bot Credentials
+API_ID = 29187149  
+API_HASH = "b1c8abd0447cdccc7ade9d68cfc0d2e2"
+SESSION_STRING = "BQG9XE0AMprKHi8H5i3KPxjb7OQeq_JzBMaDCaD-HTJKkupGQf4FtLDpiLQIsv6-wDIC..."
 
 # Initialize Pyrogram bot
 bot = Client(
@@ -67,17 +62,18 @@ bot = Client(
     api_id=int(API_ID),
     api_hash=API_HASH,
     session_string=SESSION_STRING,
-    workers=20,  # Increased workers for better concurrency
-    max_concurrent_transmissions=10  # Adjusted for handling multiple messages
+    workers=20,
+    max_concurrent_transmissions=10
 )
 
-# Define Target Group (Replace with actual group ID)
-TARGET_GROUP_ID = -1002395952299  # Replace with your group's ID
+# Define Target Group and Forwarding Channel
+TARGET_GROUP_ID = -1002395952299  
+FORWARD_CHANNEL_ID = -1002254491223  
 
 # Control flag for collect function
 collect_running = False
 
-@bot.on_message(filters.command("startcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
+@bot.on_message(filters.command("startcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, , 7859049019, 7435756663]))
 async def start_collect(_, message: Message):
     global collect_running
     if not collect_running:
@@ -86,29 +82,29 @@ async def start_collect(_, message: Message):
     else:
         await message.reply("⚠ Collect function is already running!")
 
-@bot.on_message(filters.command("stopcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
+@bot.on_message(filters.command("stopcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 1710597756, 6895497681, 7859049019, 7435756663]))
 async def stop_collect(_, message: Message):
     global collect_running
     collect_running = False
     await message.reply("🛑 Collect function stopped!")
 
-@bot.on_message(filters.photo & filters.chat(TARGET_GROUP_ID) & filters.user([7522153272, 7946198415, 7742832624, 1710597756, 7828242164, 7957490622]))
-async def hacke(c: Client, m: Message):
+@bot.on_message(filters.photo & filters.chat(TARGET_GROUP_ID) & filters.user([7522153272, 7946198415, 7742832624, 7859049019, 1710597756, 7828242164, 7957490622]))
+async def collect_celebrity(c: Client, m: Message):
     global collect_running
     if not collect_running:
         return
 
     try:
-        await asyncio.sleep(random.uniform(0.2, 0.6))  # More randomized delay
+        await asyncio.sleep(random.uniform(0.2, 0.6))
 
         if not m.caption:
-            return  # Ignore messages without captions
+            return  
 
         logging.debug(f"Received caption: {m.caption}")
 
-        # Only process OG Player messages
+        # Only process OG Celebrity messages
         if "❄️ ʟᴏᴏᴋ ᴀɴ ᴀᴡsᴏᴍᴇ ᴄᴇʟᴇʙʀɪᴛʏ ᴊᴜꜱᴛ ᴀʀʀɪᴠᴇᴅ ᴄᴏʟʟᴇᴄᴛ ʜᴇʀ/ʜɪᴍ ᴜꜱɪɴɢ /ᴄᴏʟʟᴇᴄᴛ ɴᴀᴍᴇ" not in m.caption:
-            return  # Ignore other captions
+            return  
 
         file_id = m.photo.file_unique_id
 
@@ -116,27 +112,44 @@ async def hacke(c: Client, m: Message):
         if file_id in player_cache:
             player_name = player_cache[file_id]['name']
         else:
-            file_data = db.get(file_id)  # Query database only if not in cache
+            file_data = db.get(file_id)  
             if file_data:
                 player_name = file_data['name']
-                player_cache[file_id] = file_data  # Cache result
+                player_cache[file_id] = file_data  
             else:
                 logging.warning(f"Image ID {file_id} not found in DB!")
                 return
 
-        logging.info(f"Collecting player: {player_name}")
+        logging.info(f"Collecting celebrity: {player_name}")
         await bot.send_message(m.chat.id, f"/collect {player_name}")
 
     except FloodWait as e:
-        wait_time = e.value + random.randint(1, 5)  # Add randomness to avoid exact intervals
+        wait_time = e.value + random.randint(1, 5)  
         logging.warning(f"Rate limit hit! Waiting for {wait_time} seconds...")
         await asyncio.sleep(wait_time)
     except Exception as e:
         logging.error(f"Error processing message: {e}")
 
+# Forward messages with specific rarities
+RARITIES_TO_FORWARD = ["Cosmic", "Limited Edition", "Exclusive", "Ultimate"]
+
+@bot.on_message(filters.chat(TARGET_GROUP_ID))
+async def check_rarity_and_forward(_, message: Message):
+    if not message.text:
+        return  
+
+    if "🎯 Look You Collected A" in message.text:
+        logging.info(f"Checking message for rarity:\n{message.text}")
+
+        for rarity in RARITIES_TO_FORWARD:
+            if f"Rarity : {rarity}" in message.text:
+                logging.info(f"Detected {rarity} celebrity! Forwarding...")
+                await bot.send_message(FORWARD_CHANNEL_ID, message.text)
+                break  
+
 @bot.on_message(filters.command("fileid") & filters.chat(TARGET_GROUP_ID) & filters.reply & filters.user([7508462500, 1710597756, 6895497681, 7435756663]))
 async def extract_file_id(_, message: Message):
-    """Extracts and sends the unique file ID of a replied photo (Restricted to specific users)"""
+    """Extracts and sends the unique file ID of a replied photo"""
     if not message.reply_to_message or not message.reply_to_message.photo:
         await message.reply("⚠ Please reply to a photo to extract the file ID.")
         return
@@ -146,7 +159,7 @@ async def extract_file_id(_, message: Message):
 
 async def main():
     """ Runs Pyrogram bot and Flask server concurrently """
-    preload_players()  # Load players into memory before starting
+    preload_players()
     await bot.start()
     logging.info("Bot started successfully!")
     await asyncio.gather(run_flask(), idle())
