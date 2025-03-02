@@ -73,7 +73,7 @@ FORWARD_CHANNEL_ID = -1002254491223
 # Control flag for collect function
 collect_running = False
 
-@bot.on_message(filters.command("startcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 7859049019, 1710597756, 6895497681, , 7859049019, 7435756663]))
+@bot.on_message(filters.command("startcollect") & filters.chat(TARGET_GROUP_ID) & filters.user([7508462500, 7859049019, 1710597756, 6895497681, 7859049019, 7435756663]))
 async def start_collect(_, message: Message):
     global collect_running
     if not collect_running:
